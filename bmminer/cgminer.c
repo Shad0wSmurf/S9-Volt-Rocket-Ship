@@ -734,7 +734,8 @@ struct pool *add_pool(void)
     pool = cgcalloc(sizeof(struct pool), (size_t)1);
 
 #ifdef USE_BITMAIN_C5
-    pool->support_vil = false; // TODO: why does S9 not support vil mode?
+    //pool->support_vil = false; // TODO: why does S9 not support vil mode?
+    pool->supports_version_rolling = false;
 #endif
 
     if (!pool)
@@ -7576,8 +7577,16 @@ static void *stratum_sthread(void *userdata)
         /* Give the stratum share a unique id */
         sshare->id = swork_id++;
         mutex_unlock(&sshare_lock);
-
-        if(pool->support_vil)
+        
+       #ifdef USE_BITMAIN_C5
+ 	uint32_t nversion = (uint32_t)strtoul(pool->bbversion, NULL, 16);
+ 	uint32_t nversionbe = htobe32(work->version);
+ 	uint32_t smask = nversion;
+ 	smask ^= nversionbe;
+	applog(LOG_ERR, "Version submitting share mask 0x%08" PRIx32 " with work version 0x%08" PRIx32 " and pool version 0x%08" PRIx32, smask, nversionbe, nversion);
+#endif 
+        
+ if(pool->supports_version_rolling)
         {
             snprintf(s, sizeof(s),
                      "{\"params\": [\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%08x\"], \"id\": %d, \"method\": \"mining.submit\"}",
