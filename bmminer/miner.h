@@ -1146,6 +1146,23 @@ extern int opt_bitmain_overheat;
 extern char *set_bitmain_fan(char *arg);
 extern int opt_bitmain_temp;
 
+extern char *workpadding;
+
+#define MIDSTATE_NUM 4
+
+/** Stores version data for a particular midstate */
+struct block_version {
+	/** Full version field in big endian to be submitted as part of the job */
+	uint32_t value_big_endian;
+	/** Version bits */
+	uint32_t bits;
+	/** Precalculated representation of */
+	char bits_str[9];
+};
+
+extern struct block_version n_version[MIDSTATE_NUM];
+
+
 #define NONCE_BUFF 4096
 extern char nonce_num10_string[NONCE_BUFF];
 extern char nonce_num30_string[NONCE_BUFF];
@@ -1280,7 +1297,7 @@ struct pool
     bool stratum_init;
     bool stratum_notify;
 #ifdef USE_BITMAIN_C5
-   bool supports_version_rolling;
+    bool supports_version_rolling;
     int version_num;
     int version[4];
 #endif
@@ -1414,8 +1431,7 @@ struct work
 #ifdef USE_BITMAIN_C5
     int version;
 #endif
-
-
+    unsigned int chain_id;
 };
 
 #define TAILBUFSIZ 64
@@ -1570,7 +1586,7 @@ extern struct api_data *api_add_timeval(struct api_data *root, char *name, struc
 extern struct api_data *api_add_utility(struct api_data *root, char *name, double *data, bool copy_data);
 extern struct api_data *api_add_uint(struct api_data *root, char *name, unsigned int *data, bool copy_data);
 extern struct api_data *api_add_uint8(struct api_data *root, char *name, uint8_t *data, bool copy_data);
-extern struct api_data *api_add_int16(struct api_data *root, char *name, int16_t *data, bool copy_data);
+extern struct api_data *api_add_int16(struct api_data *root, char *name, uint16_t *data, bool copy_data);
 extern struct api_data *api_add_uint16(struct api_data *root, char *name, uint16_t *data, bool copy_data);
 extern struct api_data *api_add_uint32(struct api_data *root, char *name, uint32_t *data, bool copy_data);
 extern struct api_data *api_add_uint64(struct api_data *root, char *name, uint64_t *data, bool copy_data);
